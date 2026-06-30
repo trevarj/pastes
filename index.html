@@ -338,6 +338,31 @@
         js: ["function", "const", "let", "var", "if", "else", "for", "while", "return", "class", "new", "import", "export", "async", "await", "try", "catch"],
         json: ["true", "false", "null"]
       };
+      var fileTypeLabels = {
+        c: "C",
+        cpp: "C++",
+        css: "CSS",
+        el: "Elisp",
+        gif: "GIF",
+        html: "HTML",
+        jpeg: "JPEG",
+        jpg: "JPEG",
+        js: "JavaScript",
+        json: "JSON",
+        md: "Markdown",
+        mk: "Makefile",
+        org: "Org",
+        png: "PNG",
+        py: "Python",
+        rs: "Rust",
+        scm: "Scheme",
+        sh: "Shell",
+        svg: "SVG",
+        txt: "Text",
+        avif: "AVIF",
+        webp: "WebP",
+        yaml: "YAML"
+      };
 
       function esc(text) {
         return text.replace(/[&<>"]/g, function (ch) {
@@ -356,6 +381,12 @@
         if (ext === "el") return "elisp";
         if (ext === "scheme") return "scm";
         return ext || "txt";
+      }
+
+      function fileTypeLabel(path, kind) {
+        var ext = (path.split(".").pop() || "").toLowerCase();
+        var label = fileTypeLabels[ext] || (ext ? ext.toUpperCase() : "Text");
+        return kind === "i" ? label + " image" : label;
       }
 
       function highlightLine(line, lang) {
@@ -440,7 +471,7 @@
 
         var rel = kind === "t" ? "r/" + name : "i/" + name;
         var rawUrl = RAW_BASE + rel;
-        setHeader(name, rawUrl, kind === "t" ? language(name) : "image");
+        setHeader(name, rawUrl, fileTypeLabel(name, kind));
 
         if (kind === "i") {
           document.getElementById("content").className = "";
