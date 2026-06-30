@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pastes</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --fg: #1f2428;
+      --muted: #626a73;
+      --border: #d7d9d2;
+      --panel: #ffffff;
+      --kw: #8a3ffc;
+      --str: #0b7285;
+      --com: #6a737d;
+      --num: #b54708;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15171a;
+        --fg: #eceff4;
+        --muted: #a8b0ba;
+        --border: #353b43;
+        --panel: #1d2024;
+        --kw: #b48ead;
+        --str: #8fbcbb;
+        --com: #8b949e;
+        --num: #d08770;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(100% - 32px, 1120px);
+      margin: 24px auto;
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 650;
+    }
+
+    .meta, .empty, .error {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .error {
+      color: #b42318;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    pre, .image-frame {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+    }
+
+    code {
+      font: 0.925rem/1.55 ui-monospace, "SFMono-Regular", "Cascadia Code", "Liberation Mono", monospace;
+      tab-size: 8;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .tok-kw { color: var(--kw); font-weight: 650; }
+    .tok-str { color: var(--str); }
+    .tok-com { color: var(--com); font-style: italic; }
+    .tok-num { color: var(--num); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 id="title">pastes</h1>
+      <div class="meta" id="meta"></div>
+    </header>
+    <section id="content" class="empty">Paste URL required.</section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var RAW_BASE = "https://raw.githubusercontent.com/trevarj/pastes/main/";
+      var keywordSets = {
+        el: ["defun", "defmacro", "defvar", "defcustom", "defconst", "lambda", "let", "let*", "if", "when", "unless", "cond", "pcase", "progn", "save-excursion", "interactive", "setq", "require", "provide"],
+        elisp: ["defun", "defmacro", "defvar", "defcustom", "defconst", "lambda", "let", "let*", "if", "when", "unless", "cond", "pcase", "progn", "save-excursion", "interactive", "setq", "require", "provide"],
+        scm: ["define", "lambda", "let", "let*", "letrec", "if", "cond", "case", "match", "and", "or", "begin", "use-modules"],
+        rs: ["fn", "let", "mut", "pub", "struct", "enum", "impl", "trait", "where", "match", "if", "else", "while", "loop", "for", "in", "use", "mod", "crate", "async", "await", "move", "return", "Self"],
+        py: ["def", "class", "if", "elif", "else", "for", "while", "in", "try", "except", "finally", "with", "as", "return", "yield", "import", "from", "lambda", "None", "True", "False"],
+        sh: ["if", "then", "else", "elif", "fi", "for", "while", "do", "done", "case", "esac", "function", "local", "export", "return"],
+        js: ["function", "const", "let", "var", "if", "else", "for", "while", "return", "class", "new", "import", "export", "async", "await", "try", "catch"],
+        json: ["true", "false", "null"]
+      };
+
+      function esc(text) {
+        return text.replace(/[&<>"]/g, function (ch) {
+          return {"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"}[ch];
+        });
+      }
+
+      function wordsPattern(words) {
+        return new RegExp("\\b(" + words.map(function (w) {
+          return w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        }).join("|") + ")\\b", "g");
+      }
+
+      function language(path) {
+        var ext = (path.split(".").pop() || "").toLowerCase();
+        if (ext === "el") return "elisp";
+        if (ext === "scheme") return "scm";
+        return ext || "txt";
+      }
+
+      function highlightLine(line, lang) {
+        var commentAt = -1;
+        if (/^(el|elisp|scm)$/.test(lang)) {
+          commentAt = line.indexOf(";");
+        } else if (/^(rs|js|c|cpp|java|sh|py)$/.test(lang)) {
+          commentAt = line.indexOf(/^(sh|py)$/.test(lang) ? "#" : "//");
+        }
+        var code = commentAt >= 0 ? line.slice(0, commentAt) : line;
+        var comment = commentAt >= 0 ? line.slice(commentAt) : "";
+        var out = esc(code)
+          .replace(/(&quot;(?:\\.|[^])*?&quot;|'(?:\\.|[^])*?')/g, '<span class="tok-str">$1</span>')
+          .replace(/\b([0-9]+(?:\.[0-9]+)?)\b/g, '<span class="tok-num">$1</span>');
+        var words = keywordSets[lang] || keywordSets[lang.replace(/-ts$/, "")];
+        if (words) {
+          out = out.replace(wordsPattern(words), '<span class="tok-kw">$1</span>');
+        }
+        if (comment) {
+          out += '<span class="tok-com">' + esc(comment) + "</span>";
+        }
+        return out;
+      }
+
+      function highlight(text, lang) {
+        return text.split("\n").map(function (line) {
+          return highlightLine(line, lang);
+        }).join("\n");
+      }
+
+      function setHeader(name, rawUrl, kind) {
+        document.getElementById("title").textContent = name;
+        document.title = name + " - pastes";
+        document.getElementById("meta").innerHTML =
+          '<a href="' + esc(rawUrl) + '">raw</a> · ' + esc(kind);
+      }
+
+      function renderError(message) {
+        document.getElementById("content").className = "error";
+        document.getElementById("content").textContent = message;
+      }
+
+      function route() {
+        var match = window.location.hash.match(/^#\/([ti])\/([^?#]+)$/);
+        if (!match) {
+          document.getElementById("title").textContent = "pastes";
+          document.getElementById("meta").textContent = "";
+          document.getElementById("content").className = "empty";
+          document.getElementById("content").textContent = "Paste URL required.";
+          return;
+        }
+
+        var kind = match[1];
+        var name = decodeURIComponent(match[2]);
+        if (name.indexOf("..") !== -1 || name.indexOf("/") !== -1) {
+          renderError("Invalid paste path.");
+          return;
+        }
+
+        var rel = kind === "t" ? "r/" + name : "i/" + name;
+        var rawUrl = RAW_BASE + rel;
+        setHeader(name, rawUrl, kind === "t" ? language(name) : "image");
+
+        if (kind === "i") {
+          document.getElementById("content").className = "image-frame";
+          document.getElementById("content").innerHTML =
+            '<img alt="' + esc(name) + '" src="' + esc(rawUrl) + '">';
+          return;
+        }
+
+        document.getElementById("content").className = "empty";
+        document.getElementById("content").textContent = "Loading...";
+        fetch(rawUrl, {cache: "no-store"}).then(function (response) {
+          if (!response.ok) throw new Error("Paste not found.");
+          return response.text();
+        }).then(function (text) {
+          var lang = language(name);
+          document.getElementById("content").className = "";
+          document.getElementById("content").innerHTML =
+            '<pre><code data-language="' + esc(lang) + '">' +
+            highlight(text, lang) +
+            '</code></pre>';
+        }).catch(function (error) {
+          renderError(error.message || "Unable to load paste.");
+        });
+      }
+
+      window.addEventListener("hashchange", route);
+      route();
+    }());
+  </script>
+</body>
+</html>
