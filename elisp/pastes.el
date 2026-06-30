@@ -53,7 +53,15 @@
   :type 'string)
 
 (defcustom pastes-slug-length 8
-  "Number of random hexadecimal characters in generated paste slugs."
+  "Obsolete length of random hexadecimal paste slugs."
+  :type 'natnum)
+
+(make-obsolete-variable 'pastes-slug-length
+                        'pastes-slug-word-count
+                        "0.2.0")
+
+(defcustom pastes-slug-word-count 3
+  "Number of words in generated paste slugs."
   :type 'natnum)
 
 (defcustom pastes-large-file-warning-bytes (* 5 1024 1024)
@@ -197,13 +205,76 @@ signal `user-error' on failure and return OUTPUT."
     (unless (file-exists-p (pastes--repo-file keep))
       (pastes--write-string-file (pastes--repo-file keep) ""))))
 
-(defun pastes--hex-random (length)
-  "Return LENGTH random hexadecimal characters."
-  (substring
-   (secure-hash 'sha256
-                (format "%s:%s:%s:%s"
-                        (float-time) (random t) (emacs-pid) (user-uid)))
-   0 length))
+(defconst pastes--slug-words
+  ["shell" "byte" "patch" "agent" "alias" "api" "archive" "array"
+   "async" "atom" "backend" "backup" "binary" "bind" "bit" "blob"
+   "block" "branch" "buffer" "build" "bundle" "cache" "call" "channel"
+   "check" "cipher" "class" "client" "clone" "cloud" "codec" "commit"
+   "config" "console" "core" "cursor" "daemon" "data" "debug" "delta"
+   "deploy" "diff" "digest" "disk" "docker" "domain" "driver" "dump"
+   "edge" "editor" "entry" "event" "export" "fetch" "fiber" "field"
+   "file" "filter" "flag" "frame" "gateway" "graph" "grid" "hash"
+   "hook" "host" "index" "input" "kernel" "key" "lambda" "ledger"
+   "link" "linux" "list" "loader" "lock" "log" "macro" "map"
+   "matrix" "merge" "message" "module" "monitor" "mount" "node" "object"
+   "origin" "output" "packet" "page" "parse" "path" "peer" "pipe"
+   "pixel" "plugin" "port" "process" "proxy" "queue" "query" "record"
+   "ref" "remote" "render" "repo" "request" "route" "runtime" "schema"
+   "script" "server" "signal" "socket" "source" "stack" "state" "store"
+   "stream" "string" "sync" "system" "target" "task" "terminal" "thread"
+   "token" "trace" "tree" "tty" "type" "unit" "update" "vector"
+   "vendor" "view" "worker" "zone"]
+  "Words used to generate hacker-style paste slugs.")
+
+(defvar pastes--slug-random-counter 0
+  "Counter mixed into slug randomness.")
+
+(defun pastes--slug-word-space-size ()
+  "Return the number of available slug words."
+  (length pastes--slug-words))
+
+(defun pastes--random-slug-index (limit)
+  "Return a random index below LIMIT."
+  (setq pastes--slug-random-counter (1+ pastes--slug-random-counter))
+  (mod
+   (string-to-number
+    (substring
+     (secure-hash 'sha256
+                  (format "%s:%s:%s:%s:%s:%s"
+                          (float-time)
+                          (random t)
+                          (emacs-pid)
+                          (user-uid)
+                          pastes--slug-random-counter
+                          limit))
+     0 12)
+    16)
+   limit))
+
+(defun pastes--slug-word (index)
+  "Return slug word at INDEX."
+  (aref pastes--slug-words index))
+
+(defun pastes--word-slug ()
+  "Return a random human-friendly paste slug."
+  (unless (and (integerp pastes-slug-word-count)
+               (> pastes-slug-word-count 0))
+    (user-error "pastes-slug-word-count must be a positive integer"))
+  (let ((space-size (pastes--slug-word-space-size)))
+    (when (> pastes-slug-word-count space-size)
+      (user-error "pastes-slug-word-count exceeds available slug words"))
+    (string-join
+     (cl-loop with chosen = nil
+              repeat pastes-slug-word-count
+              for index = (let ((candidate
+                                 (pastes--random-slug-index space-size)))
+                            (while (memq candidate chosen)
+                              (setq candidate
+                                    (pastes--random-slug-index space-size)))
+                            candidate)
+              do (push index chosen)
+              collect (pastes--slug-word index))
+     "-")))
 
 (defun pastes--text-relpath (slug extension)
   "Return raw text relative path for SLUG and EXTENSION."
@@ -221,7 +292,7 @@ signal `user-error' on failure and return OUTPUT."
 (defun pastes--random-text-path (extension)
   "Return random non-colliding text path for EXTENSION."
   (cl-loop
-   for slug = (pastes--hex-random pastes-slug-length)
+   for slug = (pastes--word-slug)
    for path = (pastes--text-relpath slug extension)
    unless (pastes--path-exists-p path)
    return (cons slug path)))
@@ -229,7 +300,7 @@ signal `user-error' on failure and return OUTPUT."
 (defun pastes--random-image-path (extension)
   "Return random non-colliding image path for EXTENSION."
   (cl-loop
-   for slug = (pastes--hex-random pastes-slug-length)
+   for slug = (pastes--word-slug)
    for path = (pastes--image-relpath slug extension)
    unless (pastes--path-exists-p path)
    return (cons slug path)))

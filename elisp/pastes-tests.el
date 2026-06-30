@@ -37,6 +37,42 @@
   (should (equal (pastes--image-relpath "abc123" ".png")
                  "i/abc123.png")))
 
+(ert-deftest pastes-test-word-slug-shape ()
+  (let ((pastes-slug-word-count 3)
+        (indices '(0 1 2)))
+    (cl-letf (((symbol-function 'pastes--random-slug-index)
+               (lambda (_)
+                 (prog1 (car indices)
+                   (setq indices (cdr indices))))))
+      (should (equal (pastes--word-slug)
+                     "shell-byte-patch")))))
+
+(ert-deftest pastes-test-word-slug-avoids-repeated-words ()
+  (let ((pastes-slug-word-count 3)
+        (indices '(0 0 1 1 2)))
+    (cl-letf (((symbol-function 'pastes--random-slug-index)
+               (lambda (_)
+                 (prog1 (car indices)
+                   (setq indices (cdr indices))))))
+      (should (equal (pastes--word-slug)
+                     "shell-byte-patch")))))
+
+(ert-deftest pastes-test-random-text-path-retries-on-word-slug-collision ()
+  (let ((pastes-repository-directory (make-temp-file "pastes-test-" t))
+        (slugs '("shell-byte-patch"
+                 "kernel-merge-daemon")))
+    (make-directory (pastes--repo-file "r") t)
+    (write-region "" nil
+                  (pastes--repo-file
+                   "r/shell-byte-patch.el"))
+    (cl-letf (((symbol-function 'pastes--word-slug)
+               (lambda ()
+                 (prog1 (car slugs)
+                   (setq slugs (cdr slugs))))))
+      (should (equal (pastes--random-text-path "el")
+                     '("kernel-merge-daemon"
+                       . "r/kernel-merge-daemon.el"))))))
+
 (ert-deftest pastes-test-relative-path-from-url ()
   (let ((pastes-public-base-url "https://trevs.site/pastes/"))
     (should (equal (pastes--relative-path-from-url
@@ -127,18 +163,19 @@
              ((equal args '("status" "--porcelain")) "")
              ((equal args '("rev-parse" "--verify" "HEAD")) (cons 0 "HEAD"))
              ((equal args '("branch" "--show-current")) "main")
-             ((equal args '("diff" "--cached" "--name-only")) "r/fixed.el")
+             ((equal args '("diff" "--cached" "--name-only")) "r/shell-byte-patch.el")
              ((member "push" args) (if allow-failure (cons 0 "") ""))
              (allow-failure (cons 0 ""))
              (t "")))))
     (make-directory (pastes--repo-file ".git") t)
-    (cl-letf (((symbol-function 'pastes--hex-random) (lambda (_) "fixed"))
+    (cl-letf (((symbol-function 'pastes--word-slug)
+               (lambda () "shell-byte-patch"))
               ((symbol-function 'kill-new) #'ignore))
       (should (equal (pastes--publish-text "(message \"x\")" "x.el" "el")
-                     "https://trevs.site/pastes/#/t/fixed.el")))
-    (should (file-exists-p (pastes--repo-file "r/fixed.el")))
-    (should-not (file-exists-p (pastes--repo-file "t/fixed.html")))
-    (should (member '("add" "-A" "--" "r/fixed.el") calls))))
+                     "https://trevs.site/pastes/#/t/shell-byte-patch.el")))
+    (should (file-exists-p (pastes--repo-file "r/shell-byte-patch.el")))
+    (should-not (file-exists-p (pastes--repo-file "t/shell-byte-patch.html")))
+    (should (member '("add" "-A" "--" "r/shell-byte-patch.el") calls))))
 
 (provide 'pastes-tests)
 ;;; pastes-tests.el ends here

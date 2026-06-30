@@ -53,14 +53,16 @@ order.
 
 The `main` branch stores the package and raw paste payloads:
 
-- Text payloads are written under `r/`, for example `r/a16ac49e.el`.
-- Image payloads are written under `i/`, for example `i/1d85128b.png`.
+- Text payloads are written under `r/`, for example `r/shell-byte-patch.el`.
+- Image payloads are written under `i/`, for example `i/shell-byte-patch.png`.
+- New paste names use human-friendly three-word slugs, for example
+  `shell-byte-patch`.
 
 Public URLs are viewer routes:
 
 ```text
-https://trevs.site/pastes/#/t/a16ac49e.el
-https://trevs.site/pastes/#/i/1d85128b.png
+https://trevs.site/pastes/#/t/shell-byte-patch.el
+https://trevs.site/pastes/#/i/shell-byte-patch.png
 ```
 
 The viewer on `gh-pages` fetches the corresponding raw file from `main`.
