@@ -107,6 +107,35 @@
     (should-error (pastes--clipboard-image-to-file "/tmp/nope.png")
                   :type 'user-error)))
 
+(ert-deftest pastes-test-record-manifest-entry ()
+  (let ((pastes-repository-directory (make-temp-file "pastes-test-" t)))
+    (cl-letf (((symbol-function 'pastes--manifest-timestamp)
+               (lambda () "2026-07-03T11:01:18Z")))
+      (pastes--record-manifest-entry "r/a.el")
+      (should (equal (pastes--manifest-lines)
+                     '("2026-07-03T11:01:18Z\tr/a.el"))))))
+
+(ert-deftest pastes-test-record-manifest-entry-replaces-existing-path ()
+  (let ((pastes-repository-directory (make-temp-file "pastes-test-" t)))
+    (pastes--write-manifest-lines
+     '("2026-06-01T00:00:00Z\tr/a.el"
+       "malformed"))
+    (cl-letf (((symbol-function 'pastes--manifest-timestamp)
+               (lambda () "2026-07-03T11:01:18Z")))
+      (pastes--record-manifest-entry "r/a.el")
+      (should (equal (pastes--manifest-lines)
+                     '("malformed"
+                       "2026-07-03T11:01:18Z\tr/a.el"))))))
+
+(ert-deftest pastes-test-remove-manifest-entries ()
+  (let ((pastes-repository-directory (make-temp-file "pastes-test-" t)))
+    (pastes--write-manifest-lines
+     '("2026-07-03T11:01:18Z\tr/a.el"
+       "2026-07-03T11:01:18Z\ti/a.png"))
+    (pastes--remove-manifest-entries '("r/a.el"))
+    (should (equal (pastes--manifest-lines)
+                   '("2026-07-03T11:01:18Z\ti/a.png")))))
+
 (ert-deftest pastes-test-preview-text-uses-quit-key-buffer-mode ()
   (cl-letf (((symbol-function 'display-buffer) #'ignore)
             ((symbol-function 'yes-or-no-p) (lambda (_) t)))
@@ -163,19 +192,27 @@
              ((equal args '("status" "--porcelain")) "")
              ((equal args '("rev-parse" "--verify" "HEAD")) (cons 0 "HEAD"))
              ((equal args '("branch" "--show-current")) "main")
-             ((equal args '("diff" "--cached" "--name-only")) "r/shell-byte-patch.el")
+             ((equal args '("diff" "--cached" "--name-only"))
+              "r/shell-byte-patch.el\n.pastes-manifest")
              ((member "push" args) (if allow-failure (cons 0 "") ""))
              (allow-failure (cons 0 ""))
              (t "")))))
     (make-directory (pastes--repo-file ".git") t)
     (cl-letf (((symbol-function 'pastes--word-slug)
                (lambda () "shell-byte-patch"))
+              ((symbol-function 'pastes--manifest-timestamp)
+               (lambda () "2026-07-03T11:01:18Z"))
               ((symbol-function 'kill-new) #'ignore))
       (should (equal (pastes--publish-text "(message \"x\")" "x.el" "el")
                      "https://trevs.site/pastes/#/t/shell-byte-patch.el")))
     (should (file-exists-p (pastes--repo-file "r/shell-byte-patch.el")))
     (should-not (file-exists-p (pastes--repo-file "t/shell-byte-patch.html")))
-    (should (member '("add" "-A" "--" "r/shell-byte-patch.el") calls))))
+    (should (equal (pastes--manifest-lines)
+                   '("2026-07-03T11:01:18Z\tr/shell-byte-patch.el")))
+    (should (member '("add" "-A" "--"
+                      "r/shell-byte-patch.el"
+                      ".pastes-manifest")
+                    calls))))
 
 (provide 'pastes-tests)
 ;;; pastes-tests.el ends here

@@ -1,0 +1,108 @@
+name: Monthly paste cleanup
+
+on:
+  schedule:
+    - cron: "23 4 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monthly-paste-cleanup
+  cancel-in-progress: false
+
+env:
+  PASTE_RETENTION_DAYS: "30"
+
+jobs:
+  cleanup:
+    name: Delete paste payloads
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Remove text and image pastes
+        run: |
+          python3 <<'PY'
+          import os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+
+          manifest = Path(".pastes-manifest")
+          if not manifest.exists():
+              print("No paste manifest found; nothing to clean up.")
+              raise SystemExit(0)
+
+          cutoff = (
+              datetime.now(timezone.utc)
+              - timedelta(days=int(os.environ["PASTE_RETENTION_DAYS"]))
+          )
+          kept = []
+          removed = []
+
+          for line in manifest.read_text(encoding="utf-8").splitlines():
+              if not line.strip():
+                  continue
+
+              try:
+                  created, relative = line.split("\t", 1)
+              except ValueError:
+                  kept.append(line)
+                  continue
+
+              path = Path(relative)
+              if (
+                  len(path.parts) != 2
+                  or path.parts[0] not in {"r", "i"}
+                  or path.parts[1] == ".gitkeep"
+              ):
+                  kept.append(line)
+                  continue
+
+              try:
+                  created_at = datetime.fromisoformat(
+                      created.replace("Z", "+00:00")
+                  )
+              except ValueError:
+                  kept.append(line)
+                  continue
+              if created_at.tzinfo is None:
+                  created_at = created_at.replace(tzinfo=timezone.utc)
+
+              if created_at <= cutoff:
+                  path.unlink(missing_ok=True)
+                  removed.append(relative)
+              else:
+                  kept.append(line)
+
+          manifest.write_text(
+              "".join(f"{line}\n" for line in kept),
+              encoding="utf-8",
+          )
+
+          if removed:
+              print("Removed old paste payloads:")
+              for relative in removed:
+                  print(f"  {relative}")
+          else:
+              print("No paste payloads are old enough to clean up.")
+          PY
+          git add -A r i .pastes-manifest
+
+      - name: Commit cleanup
+        run: |
+          if git diff --cached --quiet; then
+            echo "No paste payloads to clean up."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --amend --no-edit
+          git push --force-with-lease origin HEAD:main

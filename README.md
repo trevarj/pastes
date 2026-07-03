@@ -55,6 +55,7 @@ The `main` branch stores the package and raw paste payloads:
 
 - Text payloads are written under `r/`, for example `r/shell-byte-patch.el`.
 - Image payloads are written under `i/`, for example `i/shell-byte-patch.png`.
+- Paste creation timestamps are recorded in `.pastes-manifest`.
 - New paste names use human-friendly three-word slugs, for example
   `shell-byte-patch`.
 
@@ -71,6 +72,9 @@ The viewer on `gh-pages` fetches the corresponding raw file from `main`.
 
 Deletion and history flattening are best-effort public cleanup only.  Once
 content has been pushed to GitHub or GitHub Pages, treat it as exposed.
+
+The monthly cleanup workflow removes text and image paste payloads whose
+manifest timestamps are at least 30 days old.
 
 Old direct HTML paste URLs are no longer generated, but deletion still accepts
 them when possible so stale URLs can be cleaned up from the live snapshot.

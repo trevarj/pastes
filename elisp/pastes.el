@@ -112,6 +112,9 @@ Other entries are expected to write PNG bytes to stdout."
   '("png" "jpg" "jpeg" "gif" "webp" "svg" "avif")
   "Image file extensions published as direct image URLs.")
 
+(defconst pastes--manifest-relative ".pastes-manifest"
+  "Repository-relative path of the paste metadata manifest.")
+
 (defvar pastes--git-runner nil
   "Function used to run git commands.
 Tests bind this to avoid invoking git.")
@@ -152,6 +155,55 @@ Tests bind this to avoid invoking git.")
   (let ((coding-system-for-write 'no-conversion))
     (with-temp-file file
       (insert string))))
+
+(defun pastes--manifest-file ()
+  "Return the absolute path of the paste manifest."
+  (pastes--repo-file pastes--manifest-relative))
+
+(defun pastes--manifest-timestamp ()
+  "Return the current UTC timestamp for manifest entries."
+  (format-time-string "%Y-%m-%dT%H:%M:%SZ" (current-time) t))
+
+(defun pastes--manifest-lines ()
+  "Return current manifest lines."
+  (let ((file (pastes--manifest-file)))
+    (if (file-exists-p file)
+        (with-temp-buffer
+          (insert-file-contents file)
+          (split-string (buffer-string) "\n" t))
+      nil)))
+
+(defun pastes--manifest-line-path (line)
+  "Return the paste path recorded in manifest LINE."
+  (or (cadr (split-string line "\t" t)) ""))
+
+(defun pastes--write-manifest-lines (lines)
+  "Write manifest LINES."
+  (pastes--write-string-file
+   (pastes--manifest-file)
+   (if lines
+       (concat (string-join lines "\n") "\n")
+     "")))
+
+(defun pastes--record-manifest-entry (relative)
+  "Record RELATIVE as a newly-created paste payload."
+  (let ((lines (cl-remove relative (pastes--manifest-lines)
+                          :key #'pastes--manifest-line-path
+                          :test #'string=)))
+    (pastes--write-manifest-lines
+     (append lines
+             (list (format "%s\t%s"
+                           (pastes--manifest-timestamp)
+                           relative))))))
+
+(defun pastes--remove-manifest-entries (relatives)
+  "Remove RELATIVES from the manifest when it exists."
+  (when (file-exists-p (pastes--manifest-file))
+    (pastes--write-manifest-lines
+     (cl-remove-if
+      (lambda (line)
+        (member (pastes--manifest-line-path line) relatives))
+      (pastes--manifest-lines)))))
 
 (defun pastes--git-run (args &optional allow-failure)
   "Run git ARGS in `pastes-repository-directory'.
@@ -410,7 +462,8 @@ and retry once."
     (pastes--publish-transaction
      (lambda ()
        (pastes--write-string-file (pastes--repo-file raw-relative) text)
-       (list raw-relative)))
+       (pastes--record-manifest-entry raw-relative)
+       (list raw-relative pastes--manifest-relative)))
     (kill-new url)
     (message "Paste URL: %s" url)
     url))
@@ -424,7 +477,8 @@ and retry once."
     (pastes--publish-transaction
      (lambda ()
        (copy-file file (pastes--repo-file relative) t)
-       (list relative)))
+       (pastes--record-manifest-entry relative)
+       (list relative pastes--manifest-relative)))
     (kill-new url)
     (message "Paste URL: %s" url)
     url))
@@ -606,7 +660,10 @@ and retry once."
          (let ((file (pastes--repo-file target)))
            (when (file-exists-p file)
              (delete-file file))))
-       targets))
+       (pastes--remove-manifest-entries targets)
+       (if (file-exists-p (pastes--manifest-file))
+           (append targets (list pastes--manifest-relative))
+         targets)))
     (message "Deleted paste from current Pages snapshot: %s" url)))
 
 (provide 'pastes)
