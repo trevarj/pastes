@@ -70,6 +70,11 @@ jobs:
                       if snippet:
                           title = snippet[:177] + ("..." if len(snippet) > 177 else "")
                   title = html.escape(title)
+                  fallback = (
+                      f'<a href="{raw_url}"><img src="{raw_url}" alt="{title}"></a>'
+                      if kind == "i"
+                      else f'<a href="{raw_url}">Open raw paste</a>'
+                  )
                   document = f"""<!doctype html>
           <html lang="en">
           <head>
@@ -79,11 +84,12 @@ jobs:
             <script>location.replace("{viewer_url}")</script>
             <noscript><meta http-equiv="refresh" content="0;url={raw_url}"></noscript>
           </head>
-          <body><p><a href="{raw_url}">Open raw paste</a></p></body>
+          <body><p>{fallback}</p></body>
           </html>"""
                   gateway = output / f"{payload.name}.html"
                   gateway.write_text(document, encoding="utf-8")
                   assert viewer_url in document and raw_url in document
+                  assert kind != "i" or f'<img src="{raw_url}"' in document
           PY
 
       - name: Configure Pages

@@ -1,0 +1,28 @@
+       <bublz> I wonder how much of it is vibe coded.
+               I really love it
+        <trev> bublz: all
+               except a few times where i got pissed off and hand edited some
+               stuff myself
+ <tweezers-og> Lol
+               Code rage
+        <trev> exactly
+             → insanescholar_
+       <bublz> That's so sas
+               Sad
+        <trev> it's mostly an app meant for me and some friends anyway...i
+               expect some FOSS people are adverse to the LLM and will reject it
+       <bublz> So you're a 13 year old with a Claude platinum subscription
+               basically
+        <trev> lol...add a few decades
+               literally all other mobile irc apps are slop and trying to get
+               you to pay for it
+       <bublz> trev: Hey trev don't get me wrong. This is heaven In a sea of
+               poopy diapers as you very well know.
+               Idk even the target SDK of those they all seem like stuck at 26
+               or something ancient.
+               Really hope u can continue this project long term. This is
+               amazing
+             → thkkvdrikvfkl
+       <bublz> I hate those crappy paid IRC apps so badly
+        <trev> i appreciate the nicest backhanded compliment i've gotten about
+               this app 😹
