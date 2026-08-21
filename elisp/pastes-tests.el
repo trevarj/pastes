@@ -26,12 +26,12 @@
 (ert-deftest pastes-test-viewer-url-for-text-relpath ()
   (let ((pastes-public-base-url "https://trevs.site/pastes/"))
     (should (equal (pastes--url-for-relpath "r/abc123.el")
-                   "https://trevs.site/pastes/#/t/abc123.el"))))
+                   "https://trevs.site/pastes/t/abc123.el.html"))))
 
 (ert-deftest pastes-test-viewer-url-for-image-relpath ()
   (let ((pastes-public-base-url "https://trevs.site/pastes/"))
     (should (equal (pastes--url-for-relpath "i/abc123.png")
-                   "https://trevs.site/pastes/#/i/abc123.png"))))
+                   "https://trevs.site/pastes/i/abc123.png.html"))))
 
 (ert-deftest pastes-test-image-relpath ()
   (should (equal (pastes--image-relpath "abc123" ".png")
@@ -76,6 +76,12 @@
 (ert-deftest pastes-test-relative-path-from-url ()
   (let ((pastes-public-base-url "https://trevs.site/pastes/"))
     (should (equal (pastes--relative-path-from-url
+                    "https://trevs.site/pastes/t/abc.el.html")
+                   "t/abc.el.html"))))
+
+(ert-deftest pastes-test-relative-path-from-old-viewer-url ()
+  (let ((pastes-public-base-url "https://trevs.site/pastes/"))
+    (should (equal (pastes--relative-path-from-url
                     "https://trevs.site/pastes/#/t/abc.el")
                    "t/abc.el"))))
 
@@ -95,8 +101,19 @@
 (ert-deftest pastes-test-delete-viewer-text-path-deletes-raw ()
   (should (equal (pastes--delete-relpaths "t/abc.el") '("r/abc.el"))))
 
+(ert-deftest pastes-test-delete-gateway-text-path-deletes-raw ()
+  (let ((pastes-repository-directory (make-temp-file "pastes-test-" t)))
+    (make-directory (pastes--repo-file "r") t)
+    (write-region "" nil (pastes--repo-file "r/abc.el"))
+    (should (equal (pastes--delete-relpaths "t/abc.el.html")
+                   '("t/abc.el.html" "r/abc.el")))))
+
 (ert-deftest pastes-test-delete-image-path ()
   (should (equal (pastes--delete-relpaths "i/abc.png") '("i/abc.png"))))
+
+(ert-deftest pastes-test-delete-gateway-image-path-deletes-image ()
+  (should (equal (pastes--delete-relpaths "i/abc.png.html")
+                 '("i/abc.png.html" "i/abc.png"))))
 
 (ert-deftest pastes-test-unsafe-delete-path-rejected ()
   (should-error (pastes--delete-relpaths "t/../secret") :type 'user-error))
@@ -204,7 +221,7 @@
                (lambda () "2026-07-03T11:01:18Z"))
               ((symbol-function 'kill-new) #'ignore))
       (should (equal (pastes--publish-text "(message \"x\")" "x.el" "el")
-                     "https://trevs.site/pastes/#/t/shell-byte-patch.el")))
+                     "https://trevs.site/pastes/t/shell-byte-patch.el.html")))
     (should (file-exists-p (pastes--repo-file "r/shell-byte-patch.el")))
     (should-not (file-exists-p (pastes--repo-file "t/shell-byte-patch.html")))
     (should (equal (pastes--manifest-lines)

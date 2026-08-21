@@ -3,15 +3,15 @@
 Personal pastebin backed by this repository, GitHub raw file hosting, and a
 small GitHub Pages viewer.
 
-Text pastes and image pastes are committed to `main`.  GitHub Pages is served
-from `gh-pages` and contains only the static viewer app at:
+Text and image pastes are committed to `main`. The viewer source lives on
+`gh-pages` and is deployed with generated fallback pages at:
 
 ```text
 https://trevs.site/pastes/
 ```
 
-Normal paste publishing only pushes a raw file to `main`; it does not need a
-Pages rebuild or CI run.
+JavaScript browsers are redirected from each fallback page to the existing
+viewer. Non-JavaScript browsers are redirected to the raw GitHub payload.
 
 ## Emacs package
 
@@ -59,14 +59,16 @@ The `main` branch stores the package and raw paste payloads:
 - New paste names use human-friendly three-word slugs, for example
   `shell-byte-patch`.
 
-Public URLs are viewer routes:
+Public URLs enter through generated fallback pages:
 
 ```text
-https://trevs.site/pastes/#/t/shell-byte-patch.el
-https://trevs.site/pastes/#/i/shell-byte-patch.png
+https://trevs.site/pastes/t/shell-byte-patch.el.html
+https://trevs.site/pastes/i/shell-byte-patch.png.html
 ```
 
-The viewer on `gh-pages` fetches the corresponding raw file from `main`.
+The Pages deployment workflow combines the viewer from `gh-pages` with
+fallback pages generated from current `main` payloads, then deploys the result
+through GitHub Actions.
 
 ## Cleanup
 
@@ -76,5 +78,5 @@ content has been pushed to GitHub or GitHub Pages, treat it as exposed.
 The monthly cleanup workflow removes text and image paste payloads whose
 manifest timestamps are at least 30 days old.
 
-Old direct HTML paste URLs are no longer generated, but deletion still accepts
-them when possible so stale URLs can be cleaned up from the live snapshot.
+Deletion still accepts old hash routes and legacy HTML URLs when possible so
+stale URLs can be cleaned up from the live snapshot.

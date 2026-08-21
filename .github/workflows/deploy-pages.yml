@@ -1,0 +1,98 @@
+name: Deploy paste viewer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-pages.yml"
+      - ".pastes-manifest"
+      - "i/**"
+      - "r/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy viewer and fallbacks
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout paste payloads
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout viewer
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Generate non-JavaScript fallbacks
+        run: |
+          python3 <<'PY'
+          import html
+          import shutil
+          from pathlib import Path
+          from urllib.parse import quote
+
+          source = Path("source")
+          site = Path("site")
+          raw_base = "https://raw.githubusercontent.com/trevarj/pastes/main/"
+
+          for kind, payload_dir in (("t", "r"), ("i", "i")):
+              output = site / kind
+              shutil.rmtree(output, ignore_errors=True)
+              output.mkdir()
+
+              for payload in sorted((source / payload_dir).iterdir()):
+                  if not payload.is_file() or payload.name == ".gitkeep":
+                      continue
+
+                  name = quote(payload.name, safe="")
+                  raw_url = f"{raw_base}{payload_dir}/{name}"
+                  viewer_url = f"../#/{kind}/{name}"
+                  title = html.escape(payload.name)
+                  document = f"""<!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>{title} - pastes</title>
+            <script>location.replace("{viewer_url}")</script>
+            <noscript><meta http-equiv="refresh" content="0;url={raw_url}"></noscript>
+          </head>
+          <body><p><a href="{raw_url}">Open raw paste</a></p></body>
+          </html>"""
+                  gateway = output / f"{payload.name}.html"
+                  gateway.write_text(document, encoding="utf-8")
+                  assert viewer_url in document and raw_url in document
+          PY
+
+      - name: Select workflow deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

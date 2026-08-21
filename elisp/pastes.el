@@ -133,10 +133,9 @@ Tests bind this to avoid invoking git.")
 (defun pastes--url-for-relpath (relative)
   "Return public viewer URL for repository-relative path RELATIVE."
   (concat (file-name-as-directory pastes-public-base-url)
-          "#/"
-          (if (string-prefix-p "r/" relative)
-              (concat "t/" (substring relative 2))
-            relative)))
+          (if (string-prefix-p "r/" relative) "t/" "i/")
+          (substring relative 2)
+          ".html"))
 
 (defun pastes--ensure-parent-directory (file)
   "Create FILE's parent directory if needed."
@@ -630,16 +629,24 @@ and retry once."
     (pcase kind
       ("t"
        (if (string-suffix-p ".html" name)
-           (let* ((slug (file-name-sans-extension name))
-                  (raws (directory-files (pastes--repo-file "r") nil
-                                         (concat "\\`" (regexp-quote slug) "\\."))))
-             (append (list relative)
-                     (mapcar (lambda (raw) (concat "r/" raw)) raws)))
+           (let* ((payload (string-remove-suffix ".html" name))
+                  (raw (concat "r/" payload))
+                  (raws (if (pastes--path-exists-p raw)
+                            (list raw)
+                          (mapcar
+                           (lambda (file) (concat "r/" file))
+                           (directory-files
+                            (pastes--repo-file "r") nil
+                            (concat "\\`" (regexp-quote payload) "\\."))))))
+             (cons relative raws))
          (list (concat "r/" name))))
       ("r"
-       (let ((slug (file-name-sans-extension name)))
-         (list relative (format "t/%s.html" slug))))
-      ("i" (list relative))
+       (list relative (format "t/%s.html" name)))
+      ("i"
+       (if (string-suffix-p ".html" name)
+           (list relative
+                 (concat "i/" (string-remove-suffix ".html" name)))
+         (list relative)))
       (_ (user-error "Not a paste URL path: %s" relative)))))
 
 ;;;###autoload
