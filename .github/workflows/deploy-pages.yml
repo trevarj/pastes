@@ -63,7 +63,13 @@ jobs:
                   name = quote(payload.name, safe="")
                   raw_url = f"{raw_base}{payload_dir}/{name}"
                   viewer_url = f"../#/{kind}/{name}"
-                  title = html.escape(payload.name)
+                  title = payload.name
+                  if kind == "t":
+                      snippet = " ".join(payload.read_text(
+                          encoding="utf-8", errors="replace").split())
+                      if snippet:
+                          title = snippet[:177] + ("..." if len(snippet) > 177 else "")
+                  title = html.escape(title)
                   document = f"""<!doctype html>
           <html lang="en">
           <head>
