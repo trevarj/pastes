@@ -1,0 +1,448 @@
+contentscript.js:14083 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
+n @ contentscript.js:14083
+contentscript.js:14083 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 end listeners added. Use emitter.setMaxListeners() to increase limit
+n @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "app-init-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "app-init-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "background-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "background-liveness"
+warn @ contentscript.js:14083
+(index):223 crash: track spy decoded 3748500 frames at 22050
+(index):223 crash: track groove decoded 3656291 frames at 22050
+(index):223 crash: track breaker decoded 3628800 frames at 22050
+(index):223 crash: sw registered
+sigil-web-app.js:239 sokol[level=2] ?:10999 [sg]
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 sokol[level=3] ?:11000 [sg] iTexChannel0_iSmpChannel0
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 Error: type-error: car: expected pair
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 Error: type-error: car: expected pair
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 Error: type-error: car: expected pair
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36633465, threshold: 73266930
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x15fcc63
+    at 05a329ee:0x789d1e
+    at 05a329ee:0x14a7f
+    at 05a329ee:0xed57d
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x77ecbd
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x14630bf
+    at 05a329ee:0x14a7f
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36633719, threshold: 73267438
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36633793, threshold: 73267586
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36633863, threshold: 73267726
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634118, threshold: 73268236
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634192, threshold: 73268384
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634262, threshold: 73268524
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634517, threshold: 73269034
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634591, threshold: 73269182
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634661, threshold: 73269322
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634916, threshold: 73269832
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36634990, threshold: 73269980
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635060, threshold: 73270120
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635315, threshold: 73270630
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635389, threshold: 73270778
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635459, threshold: 73270918
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635713, threshold: 73271426
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635787, threshold: 73271574
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36635857, threshold: 73271714
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636113, threshold: 73272226
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636187, threshold: 73272374
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636257, threshold: 73272514
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636512, threshold: 73273024
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1332480
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x1484983
+    at 05a329ee:0x1583916
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636586, threshold: 73273172
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636656, threshold: 73273312
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36636728, threshold: 73273456
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+sigil-web-app.js:239 FATAL: Out of memory allocating 72 bytes (allocated: 36637082, threshold: 73274164
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x13292da
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x148475e
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+    at SigilWebApp.dispatch (sigil-web-app.js:425:17)
+sigil-web-app.js:239 FATAL: Out of memory allocating 64 bytes (allocated: 36637154, threshold: 73274308
+fd_write @ sigil-web-app.js:239
+sigil-web-app.js:239 )
+fd_write @ sigil-web-app.js:239
+05a329ee:0x1546535 Uncaught RuntimeError: unreachable
+    at 05a329ee:0x1546535
+    at 05a329ee:0x1600c6a
+    at 05a329ee:0x8b5ce3
+    at 05a329ee:0x14a7f
+    at 05a329ee:0x132f4a5
+    at 05a329ee:0x1583916
+    at 05a329ee:0x15c07b6
+    at 05a329ee:0x15e7be2
+    at SigilWebApp.dispatchNative (sigil-web-app.js:397:36)
+    at SigilWebApp.deliver (sigil-web-app.js:410:19)
+
+
