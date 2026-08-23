@@ -113,6 +113,47 @@
       outline: none;
     }
 
+    .paste-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+
+    .paste-list li {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .paste-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .paste-kind,
+    .paste-list details {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .paste-kind {
+      margin-left: 8px;
+    }
+
+    .paste-list summary {
+      width: max-content;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+
+    .paste-list code {
+      display: block;
+      min-width: 0;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      color: var(--fg);
+    }
+
     #content {
       min-height: min(62vh, 720px);
       padding: 18px;
@@ -328,6 +369,7 @@
       "use strict";
 
       var RAW_BASE = "https://raw.githubusercontent.com/trevarj/pastes/main/";
+      var PUBLIC_BASE = "https://trevs.site/pastes/";
       var keywordSets = {
         el: ["defun", "defmacro", "defvar", "defcustom", "defconst", "lambda", "let", "let*", "if", "when", "unless", "cond", "pcase", "progn", "save-excursion", "interactive", "setq", "require", "provide"],
         elisp: ["defun", "defmacro", "defvar", "defcustom", "defconst", "lambda", "let", "let*", "if", "when", "unless", "cond", "pcase", "progn", "save-excursion", "interactive", "setq", "require", "provide"],
@@ -427,23 +469,68 @@
           '<a href="' + esc(rawUrl) + '">raw</a> · ' + esc(kind);
       }
 
-      function setEmpty() {
+      function manifestEntries(text) {
+        return text.split("\n").map(function (line) {
+          var match = line.match(/^[^\t]+\t([ri])\/([^/]+)$/);
+          return match && {
+            kind: match[1] === "r" ? "t" : "i",
+            name: match[2]
+          };
+        }).filter(Boolean).reverse();
+      }
+
+      var manifestCheck = manifestEntries("0\tr/example.txt");
+      console.assert(
+        manifestCheck.length === 1 && manifestCheck[0].name === "example.txt",
+        "manifest parser self-check failed"
+      );
+
+      function renderPasteList(text) {
+        var pastes = manifestEntries(text);
+        var content = document.getElementById("content");
+        document.getElementById("meta").textContent = pastes.length + " current";
+        if (!pastes.length) {
+          content.className = "empty";
+          content.innerHTML = '<p class="state-line">no current pastes</p>';
+          return;
+        }
+        content.className = "";
+        content.innerHTML = '<ul class="paste-list">' + pastes.map(function (paste) {
+          var encoded = encodeURIComponent(paste.name);
+          var publicUrl = PUBLIC_BASE + paste.kind + "/" + encoded + ".html";
+          return '<li><a href="#/' + paste.kind + "/" + encoded + '">' +
+            esc(paste.name) + '</a><span class="paste-kind">' +
+            esc(fileTypeLabel(paste.name, paste.kind)) + '</span>' +
+            '<details><summary>delete</summary><code>' +
+            'M-x pastes-delete-url RET ' + esc(publicUrl) + ' RET' +
+            '</code></details></li>';
+        }).join("") + '</ul>';
+      }
+
+      function setIndex() {
+        var requestedHash = window.location.hash;
         document.getElementById("title").textContent = "pastes";
         document.title = "pastes";
         document.getElementById("meta").textContent = "";
-        document.getElementById("content").className = "empty";
-        document.getElementById("content").innerHTML =
-          '<div class="state">' +
-          '<img class="robot" src="assets/sad-robot.png" alt="Pixelated sad robot">' +
-          '<p class="state-line">paste route required</p>' +
-          '</div>';
+        setLoading("fetching paste list");
+        fetch(RAW_BASE + ".pastes-manifest", {cache: "no-store"})
+          .then(function (response) {
+            if (!response.ok) throw new Error("paste list not found");
+            return response.text();
+          }).then(function (text) {
+            if (window.location.hash === requestedHash) renderPasteList(text);
+          }).catch(function (error) {
+            if (window.location.hash === requestedHash) {
+              renderError(error.message || "unable to load paste list");
+            }
+          });
       }
 
-      function setLoading() {
+      function setLoading(message) {
         document.getElementById("content").className = "loading";
         document.getElementById("content").innerHTML =
           '<div class="state">' +
-          '<p class="state-line">fetching paste</p>' +
+          '<p class="state-line">' + esc(message) + '</p>' +
           '</div>';
       }
 
@@ -458,7 +545,7 @@
       function route() {
         var match = window.location.hash.match(/^#\/([ti])\/([^?#]+)$/);
         if (!match) {
-          setEmpty();
+          setIndex();
           return;
         }
 
@@ -482,7 +569,7 @@
           return;
         }
 
-        setLoading();
+        setLoading("fetching paste");
         fetch(rawUrl, {cache: "no-store"}).then(function (response) {
           if (!response.ok) throw new Error("paste not found");
           return response.text();
