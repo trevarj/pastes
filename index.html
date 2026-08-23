@@ -136,13 +136,23 @@
       font-size: 0.82rem;
     }
 
-    .paste-kind {
+    .paste-heading {
+      display: flex;
+      align-items: baseline;
+    }
+
+    .paste-kind,
+    .paste-heading details {
       margin-left: 8px;
+    }
+
+    .paste-heading details {
+      flex: 1;
+      min-width: 0;
     }
 
     .paste-list summary {
       width: max-content;
-      margin-top: 4px;
       cursor: pointer;
     }
 
@@ -540,12 +550,13 @@
               esc(rawUrl) + '" alt="Preview of ' + esc(paste.name) + '"></div>'
             : '<div class="paste-preview" id="preview-' + index +
               '">fetching preview</div>';
-          return '<li><a href="#/' + paste.kind + "/" + encoded + '">' +
-            esc(paste.name) + '</a><span class="paste-kind">' +
+          return '<li><div class="paste-heading"><a href="#/' + paste.kind +
+            "/" + encoded + '">' + esc(paste.name) +
+            '</a><span class="paste-kind">' +
             esc(fileTypeLabel(paste.name, paste.kind)) + '</span>' +
-            '<details><summary>move</summary>' + preview + '<code>' +
+            '<details><summary>details</summary>' + preview + '<code>' +
             'M-x pastes-delete-url RET ' + esc(publicUrl) + ' RET' +
-            '</code></details></li>';
+            '</code></details></div></li>';
         }).join("") + '</ul>';
         loadTextPreviews(pastes);
       }
