@@ -1,3 +1,8 @@
+;;; trev-clatter.el --- clatter config -*- lexical-binding: t; -*-
+
+;;; Commentary:
+;;; Code:
+
 (use-package clatter
   :load-path "~/Workspace/clatter.el"
   :ensure nil
@@ -19,9 +24,12 @@
    ("C-c -" . clatter-toggle-fools))
   :custom
   (clatter-quit-on-exit nil)
-  (clatter-track-count-style 'glyph)
+  (clatter-track-layout 'strip)
+  (clatter-track-count-style 'parens)
+  (clatter-track-max-width 1.0)
   (clatter-track-in-buffer-mode-line t)
   (clatter-track-exclude-targets '("*server*"))
+  (clatter-track-shorten nil)
   (clatter-track-indicators
    '((mention . nil)
      (dm . "✉")
@@ -31,11 +39,15 @@
   (clatter-compact-system-messages 'compact)
   (clatter-display-on-join nil)
   (clatter-display-on-welcome nil)
+  (clatter-group-messages-by-nick t)
+  (clatter-group-messages-gap 0.4)
   (clatter-self-echo-mode 'optimistic)
   (clatter-message-order 'oldest-first)
   (clatter-nick-column-width 14)
+  (clatter-nick-column-truncate t)
   (clatter-timestamp-side 'left)
   (clatter-timestamp-only-if-changed t)
+  (clatter-typing-indicator-location 'input-separator)
   (clatter-prompt-format "%n: ")
   (clatter-prompt-alignment 'right)
   (clatter-header-line-preset 'context)
@@ -57,6 +69,18 @@
              :realname ,user-full-name))
           clatter-fools erc-fools)
 
+  (custom-set-faces
+   '(clatter-track-count ((t (:height 0.8)))))
+
   (require 'clatter-dcc)
   (clatter-dcc-setup)
   (clatter-setup))
+
+;;;###autoload
+(defun trev/clatter-connect ()
+  "Connect Clatter to the Libera bouncer."
+  (interactive)
+  (clatter "soju"))
+
+(provide 'trev-clatter)
+;;; trev-clatter.el ends here

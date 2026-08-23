@@ -73,7 +73,7 @@ jobs:
                   fallback = (
                       f'<a href="{raw_url}"><img src="{raw_url}" alt="{title}"></a>'
                       if kind == "i"
-                      else f'<a href="{raw_url}">Open raw paste</a>'
+                      else f'<pre>{html.escape(payload.read_text(encoding="utf-8", errors="replace"))}</pre>'
                   )
                   document = f"""<!doctype html>
           <html lang="en">
@@ -84,7 +84,7 @@ jobs:
             <script>location.replace("{viewer_url}")</script>
             <noscript><meta http-equiv="refresh" content="0;url={raw_url}"></noscript>
           </head>
-          <body><p>{fallback}</p></body>
+          <body>{fallback}</body>
           </html>"""
                   gateway = output / f"{payload.name}.html"
                   gateway.write_text(document, encoding="utf-8")
