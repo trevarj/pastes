@@ -146,6 +146,18 @@
       cursor: pointer;
     }
 
+    .paste-preview {
+      margin: 8px 0;
+      overflow: hidden;
+      color: var(--muted);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .paste-preview img {
+      max-height: 180px;
+    }
+
     .paste-list code {
       display: block;
       min-width: 0;
@@ -479,11 +491,35 @@
         }).filter(Boolean).reverse();
       }
 
+      function previewText(text) {
+        var snippet = text.trim().replace(/\s+/g, " ");
+        return snippet.slice(0, 177) + (snippet.length > 177 ? "..." : "");
+      }
+
       var manifestCheck = manifestEntries("0\tr/example.txt");
       console.assert(
-        manifestCheck.length === 1 && manifestCheck[0].name === "example.txt",
-        "manifest parser self-check failed"
+        manifestCheck.length === 1 && manifestCheck[0].name === "example.txt" &&
+          previewText(" one\n two ") === "one two",
+        "index self-check failed"
       );
+
+      function loadTextPreviews(pastes) {
+        // ponytail: one request per text paste; batch previews if the list grows large.
+        pastes.forEach(function (paste, index) {
+          if (paste.kind !== "t") return;
+          fetch(RAW_BASE + "r/" + encodeURIComponent(paste.name), {cache: "no-store"})
+            .then(function (response) {
+              if (!response.ok) throw new Error("preview not found");
+              return response.text();
+            }).then(function (text) {
+              var preview = document.getElementById("preview-" + index);
+              if (preview) preview.textContent = previewText(text) || "empty paste";
+            }).catch(function () {
+              var preview = document.getElementById("preview-" + index);
+              if (preview) preview.textContent = "preview unavailable";
+            });
+        });
+      }
 
       function renderPasteList(text) {
         var pastes = manifestEntries(text);
@@ -495,16 +531,23 @@
           return;
         }
         content.className = "";
-        content.innerHTML = '<ul class="paste-list">' + pastes.map(function (paste) {
+        content.innerHTML = '<ul class="paste-list">' + pastes.map(function (paste, index) {
           var encoded = encodeURIComponent(paste.name);
+          var rawUrl = RAW_BASE + (paste.kind === "t" ? "r/" : "i/") + encoded;
           var publicUrl = PUBLIC_BASE + paste.kind + "/" + encoded + ".html";
+          var preview = paste.kind === "i"
+            ? '<div class="paste-preview"><img loading="lazy" src="' +
+              esc(rawUrl) + '" alt="Preview of ' + esc(paste.name) + '"></div>'
+            : '<div class="paste-preview" id="preview-' + index +
+              '">fetching preview</div>';
           return '<li><a href="#/' + paste.kind + "/" + encoded + '">' +
             esc(paste.name) + '</a><span class="paste-kind">' +
             esc(fileTypeLabel(paste.name, paste.kind)) + '</span>' +
-            '<details><summary>delete</summary><code>' +
+            '<details><summary>move</summary>' + preview + '<code>' +
             'M-x pastes-delete-url RET ' + esc(publicUrl) + ' RET' +
             '</code></details></li>';
         }).join("") + '</ul>';
+        loadTextPreviews(pastes);
       }
 
       function setIndex() {
