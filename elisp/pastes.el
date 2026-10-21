@@ -378,21 +378,23 @@ signal `user-error' on failure and return OUTPUT."
     (display-buffer buffer)
     (yes-or-no-p (format "Publish text paste %s? " title))))
 
-(defun pastes--preview-image (file)
-  "Preview image FILE and return non-nil when confirmed."
-  (let ((buffer (get-buffer-create "*pastes image preview*")))
+(defun pastes--preview-image (file &optional display-name)
+  "Preview image FILE and return non-nil when confirmed.
+DISPLAY-NAME names the original image if FILE was converted."
+  (let ((buffer (get-buffer-create "*pastes image preview*"))
+        (name (or display-name (file-name-nondirectory file))))
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer)
         (if (display-images-p)
             (condition-case _
                 (insert-image (create-image file))
-              (error (insert (format "Image: %s\n" file))))
-          (insert (format "Image: %s\n" file)))
+              (error (insert (format "Image: %s\n" name))))
+          (insert (format "Image: %s\n" name)))
         (goto-char (point-min))
         (pastes-preview-mode)))
     (display-buffer buffer)
-    (yes-or-no-p (format "Publish image %s? " (file-name-nondirectory file)))))
+    (yes-or-no-p (format "Publish image %s? " name))))
 
 (defun pastes--confirm-large-string (string)
   "Confirm when STRING is larger than `pastes-large-file-warning-bytes'."
@@ -466,6 +468,44 @@ and retry once."
     (kill-new url)
     (message "Paste URL: %s" url)
     url))
+
+;; ponytail: only PNG screenshots; keep already-compressed and animated formats unchanged.
+(defun pastes--maybe-compress-png (file)
+  "Return a smaller temporary WebP for PNG FILE, or nil on fallback."
+  (when (string-equal (downcase (or (file-name-extension file) "")) "png")
+    (let ((magick (executable-find "magick"))
+          (output nil)
+          (result nil))
+      (if (or (not magick) (file-remote-p file) (not (file-readable-p file)))
+          (display-warning 'pastes (format "Cannot compress PNG: %s" file))
+        (unwind-protect
+            (condition-case err
+                (progn
+                  (setq output (make-temp-file "pastes-image-" nil ".webp"))
+                  (if (and (eq 0 (process-file magick nil nil nil
+                                              file "-quality" "82"
+                                              (concat "webp:" output)))
+                           (> (file-attribute-size (file-attributes output)) 0)
+                           (< (file-attribute-size (file-attributes output))
+                              (file-attribute-size (file-attributes file))))
+                      (setq result output)
+                    (display-warning 'pastes (format "PNG compression did not reduce %s" file))))
+              (error (display-warning 'pastes
+                                      (format "PNG compression failed: %s" err))))
+          (when (and output (not result) (file-exists-p output))
+            (delete-file output))))
+      result)))
+
+(defun pastes--publish-image-with-preview (file)
+  "Preview and publish FILE, optionally using a smaller temporary WebP."
+  (let* ((compressed (pastes--maybe-compress-png file))
+         (effective (or compressed file)))
+    (unwind-protect
+        (when (and (pastes--confirm-large-file effective)
+                   (pastes--preview-image effective (file-name-nondirectory file)))
+          (pastes--publish-image effective))
+      (when (and compressed (file-exists-p compressed))
+        (delete-file compressed)))))
 
 (defun pastes--publish-image (file)
   "Publish image FILE and return the public URL."
@@ -541,9 +581,7 @@ and retry once."
   (unless (file-regular-p file)
     (user-error "Not a regular file: %s" file))
   (if (pastes--image-file-p file)
-      (when (and (pastes--confirm-large-file file)
-                 (pastes--preview-image file))
-        (pastes--publish-image file))
+      (pastes--publish-image-with-preview file)
     (let* ((text (pastes--read-text-file file))
            (extension (pastes--extension-for-source file major-mode)))
       (when (and (pastes--confirm-large-string text)
@@ -591,9 +629,7 @@ and retry once."
     (unwind-protect
         (progn
           (pastes--clipboard-image-to-file file)
-          (when (and (pastes--confirm-large-file file)
-                     (pastes--preview-image file))
-            (pastes--publish-image file)))
+          (pastes--publish-image-with-preview file))
       (when (file-exists-p file)
         (delete-file file)))))
 

@@ -231,5 +231,109 @@
                       ".pastes-manifest")
                     calls))))
 
+(ert-deftest pastes-test-publish-png-prefers-smaller-webp ()
+  (skip-unless (executable-find "magick"))
+  (let* ((root (make-temp-file "pastes-test-" t))
+         (source (expand-file-name "source.png" root))
+         (pastes-repository-directory (expand-file-name "repo" root))
+         (pastes-public-base-url "https://trevs.site/pastes/")
+         (calls nil)
+         (pastes--git-runner
+          (lambda (args &optional allow-failure)
+            (push args calls)
+            (cond
+             ((equal args '("status" "--porcelain")) "")
+             ((equal args '("rev-parse" "--verify" "HEAD")) (cons 0 "HEAD"))
+             ((equal args '("branch" "--show-current")) "main")
+             ((equal args '("diff" "--cached" "--name-only"))
+              "i/test-image.webp\n.pastes-manifest")
+             ((member "push" args) (cons 0 ""))
+             (allow-failure (cons 0 ""))
+             (t "")))))
+    (unwind-protect
+        (progn
+          (make-directory (pastes--repo-file ".git") t)
+          (make-directory (pastes--repo-file "i") t)
+          (should (zerop (process-file "magick" nil nil nil
+                                       "-size" "512x512" "xc:white"
+                                       (concat "PNG24:" source))))
+          (let ((original (with-temp-buffer
+                            (set-buffer-multibyte nil)
+                            (insert-file-contents-literally source)
+                            (buffer-string))))
+            (cl-letf (((symbol-function 'pastes--word-slug)
+                       (lambda () "test-image"))
+                      ((symbol-function 'pastes--preview-image)
+                       (lambda (file &optional display-name)
+                         (should (equal display-name "source.png"))
+                         (should (equal (file-name-extension file) "webp"))
+                         (with-temp-buffer
+                           (should (zerop (process-file "magick" nil t nil
+                                                        "identify" "-format" "%m" file)))
+                           (should (equal (buffer-string) "WEBP")))
+                         t))
+                      ((symbol-function 'kill-new) #'ignore))
+              (should (equal (pastes-file source)
+                             "https://trevs.site/pastes/i/test-image.webp.html")))
+            (let ((output (pastes--repo-file "i/test-image.webp")))
+              (should (< (file-attribute-size (file-attributes output))
+                         (file-attribute-size (file-attributes source))))
+              (should (string-suffix-p "\ti/test-image.webp"
+                                       (car (pastes--manifest-lines))))
+              (should (equal original (with-temp-buffer
+                                        (set-buffer-multibyte nil)
+                                        (insert-file-contents-literally source)
+                                        (buffer-string))))))
+          (should (member '("add" "-A" "--" "i/test-image.webp" ".pastes-manifest")
+                          calls))
+          (should (= 1 (cl-count '("commit" "--amend" "--no-edit") calls :test #'equal)))
+          (should (= 1 (cl-count '("push" "--force-with-lease" "origin" "main")
+                                 calls :test #'equal))))
+      (delete-directory root t))))
+
+(ert-deftest pastes-test-publish-png-preserves-original-without-magick ()
+  (let* ((root (make-temp-file "pastes-test-" t))
+         (source (expand-file-name "source.png" root))
+         (pastes-repository-directory (expand-file-name "repo" root))
+         (pastes-public-base-url "https://trevs.site/pastes/")
+         (pastes--git-runner
+          (lambda (args &optional allow-failure)
+            (cond
+             ((equal args '("status" "--porcelain")) "")
+             ((equal args '("rev-parse" "--verify" "HEAD")) (cons 0 "HEAD"))
+             ((equal args '("branch" "--show-current")) "main")
+             ((equal args '("diff" "--cached" "--name-only"))
+              "i/test-image.png\n.pastes-manifest")
+             ((member "push" args) (cons 0 ""))
+             (allow-failure (cons 0 ""))
+             (t "")))))
+    (unwind-protect
+        (progn
+          (make-directory (pastes--repo-file ".git") t)
+          (make-directory (pastes--repo-file "i") t)
+          (with-temp-file source (insert "original PNG bytes"))
+          (let ((find (symbol-function 'executable-find)))
+            (cl-letf (((symbol-function 'executable-find)
+                       (lambda (name) (unless (equal name "magick")
+                                        (funcall find name))))
+                      ((symbol-function 'pastes--word-slug)
+                       (lambda () "test-image"))
+                      ((symbol-function 'pastes--preview-image)
+                       (lambda (file &optional display-name)
+                         (should (equal file source))
+                         (should (equal display-name "source.png"))
+                         t))
+                      ((symbol-function 'kill-new) #'ignore))
+              (should (equal (pastes-file source)
+                             "https://trevs.site/pastes/i/test-image.png.html"))))
+          (should (equal (with-temp-buffer
+                           (insert-file-contents (pastes--repo-file "i/test-image.png"))
+                           (buffer-string))
+                         "original PNG bytes"))
+          (should (string-suffix-p "\ti/test-image.png"
+                                   (car (pastes--manifest-lines))))
+          (should-not (file-exists-p (pastes--repo-file "i/test-image.webp"))))
+      (delete-directory root t))))
+
 (provide 'pastes-tests)
 ;;; pastes-tests.el ends here
