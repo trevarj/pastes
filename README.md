@@ -46,6 +46,10 @@ publishing.  The default checkout is `~/Workspace/pastes`.
 
 Preview buffers use `pastes-preview-mode`, so they can be closed with `q`.
 
+PNG images from files or the clipboard are published as quality-82 WebP when
+ImageMagick produces smaller bytes. Otherwise the original PNG is published.
+The preview shows the bytes that will be uploaded.
+
 Clipboard image publishing tries `wl-paste`, `xclip`, and `pngpaste`, in that
 order.
 
@@ -54,7 +58,8 @@ order.
 The `main` branch stores the package and raw paste payloads:
 
 - Text payloads are written under `r/`, for example `r/shell-byte-patch.el`.
-- Image payloads are written under `i/`, for example `i/shell-byte-patch.png`.
+- Image payloads are written under `i/`, for example `i/shell-byte-patch.webp`
+  after PNG compression or `i/shell-byte-patch.png` on fallback.
 - Paste creation timestamps are recorded in `.pastes-manifest`.
 - New paste names use human-friendly three-word slugs, for example
   `shell-byte-patch`.
@@ -69,6 +74,10 @@ https://trevs.site/pastes/i/shell-byte-patch.png.html
 The Pages deployment workflow combines the viewer from `gh-pages` with
 fallback pages generated from current `main` payloads, then deploys the result
 through GitHub Actions.
+
+Public `.html` image links remain dependent on the Pages deployment after the
+push; smaller uploads do not eliminate that wait.
+
 
 ## Cleanup
 
